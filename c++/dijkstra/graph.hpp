@@ -8,28 +8,17 @@
 
 typedef std::vector<std::vector<unsigned>> graph;
 
-/*
- * Represents the following graph:
+/* an image of this graph is found in this directory. It is an svg file of
+ * the same name
  *
- * 0 -- 2 - 3
- * |    | /
- * 1 -- 4
- *
+ * expected shortest path from 0:
+ *  - cost:
+ *  - path:
  */
-
 graph graph_5_nodes = {
     {0, 4, 1, 0, 0},
     {3, 0, 0, 0, 5},
-    {5, 0, 0, 8, 7},
+    {0, 0, 0, 8, 7},
     {0, 0, 4, 3, 0},
     {0, 8, 3, 6, 0},
-};
-
-graph graph_6_nodes = {
-    {0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0},
-    {0, 0, 0, 0, 0, 0},
 };
