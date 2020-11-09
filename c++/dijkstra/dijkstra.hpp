@@ -4,6 +4,9 @@
 
 #pragma once
 
+#include <cstdio>
+#include <limits>
+#include <set>
 #include <vector>
 
 #include "graph.hpp"
