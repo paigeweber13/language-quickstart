@@ -5,6 +5,9 @@ The challenge: for each language, implement the following:
 - parallel mergesort
 - get an optional binary command line flag (there or not) and an optional
   command line flag with an argument
+- get every link on the front page of [hacker
+  news](https://news.ycombinator.com/news) (and optionally, get every image on
+  the pages linked to))
 
 External packages are allowed: one of the goals of this project is to help the
 new programmer discover what the package ecosystem is like.
@@ -30,3 +33,6 @@ new programmer discover what the package ecosystem is like.
 - can be a headache with built-in features in some languages (c getopts, for
   instance)
 
+## Web scraping
+- This is a common usecase for me
+- Incorporates web requests, I/O
