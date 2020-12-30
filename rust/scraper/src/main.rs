@@ -4,6 +4,10 @@ use scraper::{Html, Selector};
 
 use reqwest::Response;
 
+// TODO: If i ever come back to this, switch to blocking reqwests. I think
+// trying to learn tokio and async at the same time as rust is causing me most
+// of my problems.
+
 // pub fn save_image(image_bytes: &Bytes, file_name: &str) {
 
 // }
