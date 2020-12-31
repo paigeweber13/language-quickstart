@@ -1,8 +1,11 @@
+#include <assert.h>
 #include <iostream>
 #include <limits>
 #include <random>
 
 typedef unsigned long long ull;
+
+const ull MAX_ARRAY_SIZE_FOR_PRINTS = 21;
 
 const int CODE_WRONG_NUM_ARGUMENTS_ERROR = 1;
 const int CODE_UNABLE_TO_PARSE_ERROR = 2;
@@ -54,6 +57,24 @@ bool array_is_ordered(float * array, ull n) {
   return true;
 }
 
+/*
+ * this will return a pointer to a new array that is sorted. This array must be
+ * manually deleted
+ */
+float * mergesort(float * array, ull n) {
+  float * sorted = new float[n];
+
+  return sorted;
+}
+
+/*
+ * merges a and b, returns new array with sorted contents. This array must be
+ * manually deleted.
+ */
+float * merge(float * a, ull m, float * b, ull n) {
+  ;
+}
+
 int main(int argc, char **argv) {
   if(argc < 2) {
     std::cerr << "ERROR: Must specify array length as first and only parameter"
@@ -89,9 +110,14 @@ int main(int argc, char **argv) {
   while(array_is_ordered(array, array_size)) {
     std::cout << "Wow! You must be the luckiest person alive, because we just "
       << "generated an ordered array" << std::endl
-      << " of length " << array_size << ". Re-generating array..." 
-      << std::endl;
-    print_array(array, array_size);
+      << " of length " << array_size << "." << std::endl;
+
+    if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
+      std::cout << "Array we generated: ";
+      print_array(array, array_size);
+    }
+
+    std::cout << "Re-generating array..." << std::endl;
     
     std::cout << "old seed: " << seed << std::endl;
     seed += 11;
@@ -99,11 +125,40 @@ int main(int argc, char **argv) {
 
     delete[] array;
     array = create_array(array_size, seed);
+
+    if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
+      std::cout << "New array: ";
+      print_array(array, array_size);
+    }
   }
 
-  print_array(array, array_size);
+  if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
+    std::cout << "Array before starting: ";
+    print_array(array, array_size);
+  }
 
+
+  /* do mergesort */
+  float * sorted = mergesort(array, array_size);
+
+
+  /* check for successful sort! */
+  if(array_is_ordered(sorted, array_size)) {
+    std::cout << "SUCCESS: array is sorted!" << std::endl;
+  }
+  else {
+    std::cerr << "FAILURE: array is not sorted!" << std::endl;
+  }
+
+  if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
+    std::cout << "Array after sorting: ";
+    print_array(sorted, array_size);
+  }
+
+
+  /* clean up */
   delete[] array;
+  delete[] sorted;
 
   return 0;
 }
