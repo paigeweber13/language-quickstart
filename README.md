@@ -30,3 +30,9 @@ new programmer discover what the package ecosystem is like.
 - Incorporates web requests, I/O
 - will likely require an external package, providing an opportunity to learn
   about the package ecosystem
+
+# Other fun problems
+These could be added in the future
+- Sieve of Eratosthenes
+- More sorting algorithms
+- Binary Search Tree
