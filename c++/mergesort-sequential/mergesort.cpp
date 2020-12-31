@@ -29,6 +29,31 @@ float * create_array(ull n, unsigned seed) {
   return array;
 }
 
+void print_array(float * array, ull n) {
+  std::cout << "{";
+  for(ull i = 0; i < n; i++){
+    std::cout << array[i];
+
+    if (i != n-1) {
+      std::cout << ", ";
+    }
+  }
+  std::cout << "}" << std::endl;
+}
+
+/*
+ * for the purposes of this toy program, we only care about ascending order
+ */
+bool array_is_ordered(float * array, ull n) {
+  for(ull i = 0; i < n-1; i++) {
+    if(array[i] > array[i+1]) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 int main(int argc, char **argv) {
   if(argc < 2) {
     std::cerr << "ERROR: Must specify array length as first and only parameter"
@@ -58,7 +83,26 @@ int main(int argc, char **argv) {
 
 
   // TODO: make seed random once results are consistent
-  float * array = create_array(array_size, 1);
+  unsigned seed = 1;
+  float * array = create_array(array_size, seed);
+
+  while(array_is_ordered(array, array_size)) {
+    std::cout << "Wow! You must be the luckiest person alive, because we just "
+      << "generated an ordered array" << std::endl
+      << " of length " << array_size << ". Re-generating array..." 
+      << std::endl;
+    print_array(array, array_size);
+    
+    std::cout << "old seed: " << seed << std::endl;
+    seed += 11;
+    std::cout << "new seed: " << seed << std::endl;
+
+    delete[] array;
+    array = create_array(array_size, seed);
+  }
+
+  print_array(array, array_size);
+
   delete[] array;
 
   return 0;
