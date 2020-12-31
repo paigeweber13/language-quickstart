@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <cstring>
 #include <iostream>
 #include <limits>
 #include <random>
@@ -55,18 +56,66 @@ bool array_is_ordered(float * array, ull n) {
 }
 
 /*
- * recursively merge-sorts an array. Both arrays must be of size n
+ * assumes a and b are contiguous in memory, with 'a' first
  */
-void mergesort(float * input_array, float * output_array, ull n) {
-  ;
+void merge(float * a, ull a_n, float * b, ull b_n) {
+  ull a_i = 0; // index of array a
+  ull b_i = 0; // index of array b
+
+  // merging in place requires a lot of shifting, so is very memory-intensive in
+  // worst case.
+
+  // instead, let's just create another temporary array 'merged'
+
+  float * merged = new float[a_n+b_n];
+  ull merged_i = 0;
+
+  while(a_i < a_n && b_i < b_n) {
+    if(a[a_i] > b[b_i]) {
+      // then b should come first
+      merged[merged_i] = b[b_i];
+      b_i++;
+    }
+    else {
+      // else a is <= b so we put b next
+      merged[merged_i] = a[a_i];
+      a_i++;
+    }
+
+    merged_i++;
+  }
+
+  // if either 'a' or 'b' has items left, copy them to 'merged'
+  if(a_i < a_n) {
+    memcpy(merged + merged_i, a + a_i, sizeof(float) * (a_n - a_i));
+  }
+  if(b_i < b_n) {
+    memcpy(merged + merged_i, b + b_i, sizeof(float) * (b_n - b_i));
+  }
+
+  // then move stuff from 'merged' back into original array
+  memcpy(a, merged, sizeof(float) * (a_n+b_n));
+
+  delete[] merged;
 }
 
 /*
- * merges a and b, returns new array with sorted contents. This array must be
- * manually deleted.
+ * recursively merge-sorts an array in-place.
  */
-float * merge(float * a, ull m, float * b, ull n) {
-  ;
+void mergesort(float * array, ull n) {
+  if(n == 1)
+    return;
+  
+  ull left_n = n/2;
+  float * left_array = array;
+
+  ull right_n = n - n/2;
+  float * right_array = array + left_n;
+
+  mergesort(left_array, left_n);
+  mergesort(right_array, right_n);
+
+  merge(left_array, left_n, right_array, right_n);
 }
 
 int main(int argc, char **argv) {
@@ -133,12 +182,12 @@ int main(int argc, char **argv) {
 
 
   /* do mergesort */
-  float * sorted = new float[array_size];
-  mergesort(array, sorted, array_size);
+  // float * sorted = new float[array_size];
+  mergesort(array, array_size);
 
 
   /* check for successful sort! */
-  if(array_is_ordered(sorted, array_size)) {
+  if(array_is_ordered(array, array_size)) {
     std::cout << "SUCCESS: array is sorted!" << std::endl;
   }
   else {
@@ -147,13 +196,13 @@ int main(int argc, char **argv) {
 
   if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
     std::cout << "Array after sorting: ";
-    print_array(sorted, array_size);
+    print_array(array, array_size);
   }
 
 
   /* clean up */
   delete[] array;
-  delete[] sorted;
+  // delete[] sorted;
 
   return 0;
 }
