@@ -5,6 +5,9 @@ mergesort
 # core dumps
 core
 
+# valgrind things
+vgcore.*
+
 # Prerequisites
 *.d
 
