@@ -1,8 +1,6 @@
-#include <assert.h>
-#include <cstring>
-#include <iostream>
-#include <limits>
-#include <random>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
 typedef unsigned long long ull;
 
@@ -16,43 +14,38 @@ const int CODE_INPUT_EXCEEDS_MAX_ERROR = 3;
  * randomizes the array 'array'
  */
 void randomize_array(float * array, ull n, unsigned seed) {
-  std::default_random_engine rand_generator (seed);
+  srand(seed);
 
-  if(n < rand_generator.max()) {
-    for (ull i = 0; i < n; i++) {
-      array[i] = rand_generator() % n;
-    }
-  }
-  else {
-    for (ull i = 0; i < n; i++) {
-      array[i] = rand_generator();
-    }
+  for (ull i = 0; i < n; i++) {
+    array[i] = rand();
   }
 }
 
 void print_array(float * array, ull n) {
-  std::cout << "{";
+  printf("{");
   for(ull i = 0; i < n; i++){
-    std::cout << array[i];
+    printf("%.1f", array[i]);
 
     if (i != n-1) {
-      std::cout << ", ";
+      printf(", ");
     }
   }
-  std::cout << "}" << std::endl;
+  printf("}\n");
 }
 
 /*
  * for the purposes of this toy program, we only care about ascending order
+ * 
+ * return value is binary, true or false.
  */
-bool array_is_ordered(float * array, ull n) {
+char array_is_ordered(float * array, ull n) {
   for(ull i = 0; i < n-1; i++) {
     if(array[i] > array[i+1]) {
-      return false;
+      return 0;
     }
   }
 
-  return true;
+  return 1;
 }
 
 /*
@@ -67,7 +60,7 @@ void merge(float * a, ull a_n, float * b, ull b_n) {
 
   // instead, let's just create another temporary array 'merged'
 
-  float * merged = new float[a_n+b_n];
+  float * merged = (float*)malloc(sizeof(float) * (a_n+b_n));
   ull merged_i = 0;
 
   while(a_i < a_n && b_i < b_n) {
@@ -96,7 +89,7 @@ void merge(float * a, ull a_n, float * b, ull b_n) {
   // then move stuff from 'merged' back into original array
   memcpy(a, merged, sizeof(float) * (a_n+b_n));
 
-  delete[] merged;
+  free(merged);
 }
 
 /*
@@ -120,63 +113,47 @@ void mergesort(float * array, ull n) {
 
 int main(int argc, char **argv) {
   if(argc < 2) {
-    std::cerr << "ERROR: Must specify array length as first and only parameter"
-      << std::endl
-      << "Usage: " << argv[0] << " n" << std::endl;
+    fprintf(stderr, "ERROR: Must specify array length as first and only "
+      "parameter.\nUsage: %s n\n", argv[0]);
     return CODE_WRONG_NUM_ARGUMENTS_ERROR;
   }
 
 
   ull array_size;
 
-  try {
-    array_size = std::stoull(argv[1]);
-  } 
+  array_size = strtoull(argv[1], NULL, 0);
   
-  catch (const std::invalid_argument& e) {
-    std::cerr << "ERROR: could not parse argument to integer." << std::endl;
-    return CODE_UNABLE_TO_PARSE_ERROR;
-  } 
-  
-  catch (const std::out_of_range& e) {
-    std::cerr << "ERROR: number specified is too large. Please specify a "
-      << "number smaller than " 
-      << std::numeric_limits<ull>::max() << std::endl;
-    return CODE_INPUT_EXCEEDS_MAX_ERROR;
-  }
-
-
   // TODO: make seed random once results are consistent
   unsigned seed = 1;
-  float * array = new float[array_size];
+  float * array = (float*)malloc(sizeof(float) * array_size);
   randomize_array(array, array_size, seed);
 
   while(array_is_ordered(array, array_size)) {
-    std::cout << "Wow! You must be the luckiest person alive, because we just "
-      << "generated an ordered array" << std::endl
-      << " of length " << array_size << "." << std::endl;
+    printf("Wow! You must be the luckiest person alive, because we just "
+      "generated an ordered array\n"
+      " of length %llu.\n", array_size);
 
     if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
-      std::cout << "Array we generated: ";
+      printf("Array we generated: ");
       print_array(array, array_size);
     }
 
-    std::cout << "Re-generating array..." << std::endl;
+    printf("Re-generating array...\n");
     
-    std::cout << "old seed: " << seed << std::endl;
+    printf("old seed: %u\n", seed);
     seed += 11;
-    std::cout << "new seed: " << seed << std::endl;
+    printf("new seed: %u\n", seed);
 
     randomize_array(array, array_size, seed);
 
     if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
-      std::cout << "New array: ";
+      printf("New array: ");
       print_array(array, array_size);
     }
   }
 
   if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
-    std::cout << "Array before starting: ";
+    printf("Array before starting: ");
     print_array(array, array_size);
   }
 
@@ -188,21 +165,20 @@ int main(int argc, char **argv) {
 
   /* check for successful sort! */
   if(array_is_ordered(array, array_size)) {
-    std::cout << "SUCCESS: array is sorted!" << std::endl;
+    printf("SUCCESS: array is sorted!\n");
   }
   else {
-    std::cerr << "FAILURE: array is not sorted!" << std::endl;
+    printf("FAILURE: array is not sorted!\n");
   }
 
   if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
-    std::cout << "Array after sorting: ";
+    printf("Array after sorting: ");
     print_array(array, array_size);
   }
 
 
   /* clean up */
-  delete[] array;
-  // delete[] sorted;
+  free(array);
 
   return 0;
 }

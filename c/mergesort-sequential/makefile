@@ -1,7 +1,10 @@
-SRC=mergesort.cpp
+SRC=mergesort.c
+CC=gcc
+EXEC=mergesort
+COMMON_FLAGS=-Wall --std=c++11 -o $(EXEC)
 
 debug:
-	g++ -Wall --std=c++11 -g -o mergesort $(SRC)
+	$(CC) -g $(COMMON_FLAGS) $(SRC)
 
 release:
-	g++ -Wall --std=c++11 -O3 -o mergesort $(SRC)
+	$(CC) -O3 $(COMMON_FLAGS) $(SRC)
