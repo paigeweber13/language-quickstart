@@ -1,11 +1,13 @@
+import datetime
+import pathlib
 import subprocess
 
-i = 1
+i = 100
 
 outputs = []
 subprocess.run(['make', 'release'])
 
-while i < 1.1e9:
+while i < 1.1e10:
     command = ['./mergesort', str(i)]
     print('INFO: Running command', ' '.join(command))
     out = subprocess.run(command, capture_output=True)
@@ -18,4 +20,20 @@ while i < 1.1e9:
 
     i*=10
 
-print(outputs)
+header = ' result,        n,items_per_second,     malloc_time,  randomize_time,       sort_time'
+
+for i in range(len(outputs)):
+    outputs[i] = outputs[i].decode()
+
+print('Results:')
+csv_string = header + '\n' + ''.join(outputs)
+print(csv_string)
+csv_string = csv_string.replace(' ', '')
+
+print('saving to disk...')
+
+pathlib.Path('data').mkdir(parents=True, exist_ok=True)
+date_str = datetime.datetime.now().strftime('%Y-%m-%d_%H%M')
+
+with open('data/' + date_str + '.csv', 'w') as f:
+    f.write(csv_string)
