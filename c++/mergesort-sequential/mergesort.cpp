@@ -11,11 +11,10 @@ const int CODE_WRONG_NUM_ARGUMENTS_ERROR = 1;
 const int CODE_UNABLE_TO_PARSE_ERROR = 2;
 const int CODE_INPUT_EXCEEDS_MAX_ERROR = 3;
 
-/* any program that calls create_array is responsible for deleting the data 
- * pointed to
+/* 
+ * randomizes the array 'array'
  */
-float * create_array(ull n, unsigned seed) {
-  float* array = new float[n];
+void randomize_array(float * array, ull n, unsigned seed) {
   std::default_random_engine rand_generator (seed);
 
   if(n < rand_generator.max()) {
@@ -28,8 +27,6 @@ float * create_array(ull n, unsigned seed) {
       array[i] = rand_generator();
     }
   }
-
-  return array;
 }
 
 void print_array(float * array, ull n) {
@@ -58,13 +55,10 @@ bool array_is_ordered(float * array, ull n) {
 }
 
 /*
- * this will return a pointer to a new array that is sorted. This array must be
- * manually deleted
+ * recursively merge-sorts an array. Both arrays must be of size n
  */
-float * mergesort(float * array, ull n) {
-  float * sorted = new float[n];
-
-  return sorted;
+void mergesort(float * input_array, float * output_array, ull n) {
+  ;
 }
 
 /*
@@ -105,7 +99,8 @@ int main(int argc, char **argv) {
 
   // TODO: make seed random once results are consistent
   unsigned seed = 1;
-  float * array = create_array(array_size, seed);
+  float * array = new float[array_size];
+  randomize_array(array, array_size, seed);
 
   while(array_is_ordered(array, array_size)) {
     std::cout << "Wow! You must be the luckiest person alive, because we just "
@@ -123,8 +118,7 @@ int main(int argc, char **argv) {
     seed += 11;
     std::cout << "new seed: " << seed << std::endl;
 
-    delete[] array;
-    array = create_array(array_size, seed);
+    randomize_array(array, array_size, seed);
 
     if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
       std::cout << "New array: ";
@@ -139,7 +133,8 @@ int main(int argc, char **argv) {
 
 
   /* do mergesort */
-  float * sorted = mergesort(array, array_size);
+  float * sorted = new float[array_size];
+  mergesort(array, sorted, array_size);
 
 
   /* check for successful sort! */
