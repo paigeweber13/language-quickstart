@@ -1,5 +1,9 @@
 # executables
 dijkstra
+mergesort
+
+# core dumps
+core
 
 # Prerequisites
 *.d
