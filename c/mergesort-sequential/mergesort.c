@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 typedef unsigned long long ull;
 
@@ -118,15 +119,23 @@ int main(int argc, char **argv) {
     return CODE_WRONG_NUM_ARGUMENTS_ERROR;
   }
 
-
+  /* get command line arg */
   ull array_size;
 
   array_size = strtoull(argv[1], NULL, 0);
   
+  /* initialize array*/
   // TODO: make seed random once results are consistent
-  unsigned seed = 1;
+  unsigned seed = clock();
+
+  clock_t malloc_time_start = clock();
   float * array = (float*)malloc(sizeof(float) * array_size);
+  clock_t malloc_time_end = clock();
+
+  clock_t randomize_time_start = clock();
   randomize_array(array, array_size, seed);
+  clock_t randomize_time_end = clock();
+
 
   while(array_is_ordered(array, array_size)) {
     printf("Wow! You must be the luckiest person alive, because we just "
@@ -158,23 +167,61 @@ int main(int argc, char **argv) {
   }
 
 
-  /* do mergesort */
+  /* ----- do mergesort ----- */
   // float * sorted = new float[array_size];
+  clock_t sort_time_start = clock();
   mergesort(array, array_size);
+  clock_t sort_time_end = clock();
 
 
+  /* ----- results ----- */
   /* check for successful sort! */
+  char result_str[8];
   if(array_is_ordered(array, array_size)) {
-    printf("SUCCESS: array is sorted!\n");
+    strcpy(result_str, "success");
   }
   else {
-    printf("FAILURE: array is not sorted!\n");
+    strcpy(result_str, "failure");
   }
 
   if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
     printf("Array after sorting: ");
     print_array(array, array_size);
   }
+
+  /* calculate durations */
+  clock_t malloc_duration = malloc_time_end-malloc_time_start;
+  double malloc_seconds = ((double)malloc_duration)/CLOCKS_PER_SEC;
+  unsigned long malloc_minutes = ((unsigned long)malloc_seconds)/60;
+  malloc_seconds -= malloc_minutes * 60;
+
+  clock_t randomize_duration = randomize_time_end-randomize_time_start;
+  double randomize_seconds = ((double)randomize_duration)/CLOCKS_PER_SEC;
+  unsigned long randomize_minutes = ((unsigned long)randomize_seconds)/60;
+  randomize_seconds -= randomize_minutes * 60;
+
+  clock_t sort_duration = sort_time_end-sort_time_start;
+  double sort_seconds = ((double)sort_duration)/CLOCKS_PER_SEC;
+  unsigned long sort_minutes = ((unsigned long)sort_seconds)/60;
+  sort_seconds -= sort_minutes * 60;
+
+  // printf("sort_time_start   is: %lu\n", sort_time_start);
+  // printf("sort_time_end     is: %lu\n", sort_time_end);
+  // printf("sort_duration     is: %lu\n", sort_duration);
+  // printf("sort_minutes      is: %lu\n", sort_minutes);
+  // printf("sort_seconds      is: %f\n", sort_seconds);
+
+
+  // header for this csv is "result,n,malloc_time,randomize_time,sort_time"
+  // all times are given in the format "m:s.ms"
+
+  // it is safe to remove spaces before processing
+
+  printf(" result,       n,     malloc_time,  randomize_time,        sort_time\n");
+  printf("%s,%.2e,%6lu:%9.4f,%6lu:%9.4f,%6lu:%9.4f\n", result_str, (double)array_size, 
+    malloc_minutes, malloc_seconds,
+    randomize_minutes, randomize_seconds,
+    sort_minutes, sort_seconds);
 
 
   /* clean up */
