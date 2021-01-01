@@ -1,3 +1,4 @@
+#include <omp.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -94,14 +95,37 @@ void mergesort(float * array, float * buffer, ull n) {
   
   ull left_n = n/2;
   float * left_array = array;
+  float * left_buffer = buffer;
 
   ull right_n = n - n/2;
   float * right_array = array + left_n;
+  float * right_buffer = buffer + left_n;
 
-  mergesort(left_array, buffer, left_n);
-  mergesort(right_array, buffer + left_n, right_n);
+  mergesort(left_array, left_buffer, left_n);
+  mergesort(right_array, right_buffer, right_n);
 
   merge(left_array, left_n, right_array, right_n, buffer);
+}
+
+void mergesort_parallel(float * array, float * buffer, ull n) {
+  // there is no free lunch: this parameter will need tuning per-machine
+  const ull MIN_PARALLEL_N = (ull)1e6;
+
+  if (n < MIN_PARALLEL_N) {
+    // for small n, use sequential code. Avoid creating thousands of tasks.
+    mergesort(array, buffer, n/2);
+    mergesort(array + n/2, buffer + n/2, n - n/2);
+  }
+  else {
+    #pragma omp task
+    mergesort_parallel(array, buffer, n/2);
+
+    #pragma omp task
+    mergesort_parallel(array + n/2, buffer + n/2, n - n/2);
+  }
+
+  #pragma omp taskwait
+  merge(array, n/2, array + n/2, n - n/2, buffer);
 }
 
 int main(int argc, char **argv) {
@@ -158,10 +182,15 @@ int main(int argc, char **argv) {
     print_array(array, array_size);
   }
 
-
   /* ----- do mergesort ----- */
   clock_t sort_time_start = clock();
-  mergesort(array, buffer, array_size);
+
+  #pragma omp parallel 
+  {
+    #pragma omp single
+    mergesort_parallel(array, buffer, array_size);
+  }
+
   clock_t sort_time_end = clock();
 
 
@@ -204,7 +233,8 @@ int main(int argc, char **argv) {
 
   // it is safe to remove spaces before processing
 
-  fprintf(stderr, " result,        n,items_per_second,     malloc_time,  randomize_time,       sort_time\n");
+  fprintf(stderr, " result,        n,items_per_second,     malloc_time,  "
+    "randomize_time,       sort_time\n");
   printf("%s,%9.2e,%16.4f,%16.4f,%16.4f,%16.4f\n", 
     result_str, (double)array_size, ((double)array_size)/total_seconds,
     malloc_seconds, randomize_seconds, sort_seconds);

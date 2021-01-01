@@ -1,7 +1,7 @@
 SRC=mergesort.c
 CC=gcc
 EXEC=mergesort
-COMMON_FLAGS=-Wall -o $(EXEC)
+COMMON_FLAGS=-Wall -fopenmp -o $(EXEC)
 
 debug:
 	$(CC) -g -pg $(COMMON_FLAGS) $(SRC)
