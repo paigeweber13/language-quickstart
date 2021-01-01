@@ -1,7 +1,9 @@
 #include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <limits>
 #include <random>
+#include <string>
 #include <vector>
 
 typedef unsigned long long ull;
@@ -158,8 +160,15 @@ int main(int argc, char **argv) {
 
   unsigned seed = std::chrono::high_resolution_clock::now()
     .time_since_epoch().count();
+
+  // initialize array
+  auto init_array_start = std::chrono::high_resolution_clock::now();
   std::vector<float> array(array_size);
+  auto init_array_end = std::chrono::high_resolution_clock::now();
+
+  auto randomize_array_start = std::chrono::high_resolution_clock::now();
   randomize_array(array, seed);
+  auto randomize_array_end = std::chrono::high_resolution_clock::now();
 
   while(array_is_ordered(array)) {
     std::cout << "Wow! You must be the luckiest person alive, because we just "
@@ -192,21 +201,60 @@ int main(int argc, char **argv) {
 
 
   /* do mergesort */
+  auto sort_start = std::chrono::high_resolution_clock::now();
   mergesort(array);
+  auto sort_end = std::chrono::high_resolution_clock::now();
 
+  auto init_array_duration = (init_array_end - init_array_start).count();
+  auto randomize_array_duration = (randomize_array_end - randomize_array_start).count();
+  auto sort_duration = (sort_end - sort_start).count();
+
+  const double NANOSECONDS_TO_SECONDS = 1e-9;
+  double init_array_duration_seconds = ((double)init_array_duration) * NANOSECONDS_TO_SECONDS;
+  double randomize_array_duration_seconds = ((double)randomize_array_duration) * NANOSECONDS_TO_SECONDS;
+  double sort_duration_seconds = ((double)sort_duration) * NANOSECONDS_TO_SECONDS;
+  double total_seconds = init_array_duration_seconds 
+    + randomize_array_duration_seconds
+    + sort_duration_seconds;
 
   /* check for successful sort! */
+  std::string result;
   if(array_is_ordered(array)) {
-    std::cout << "SUCCESS: array is sorted!" << std::endl;
+    result = "success";
   }
   else {
-    std::cerr << "FAILURE: array is not sorted!" << std::endl;
+    result = "failure";
   }
 
   if(array_size < ARRAY_DEBUG_THRESHOLD) {
     std::cout << "Array after sorting: ";
     print_array(array);
   }
+
+  std::cerr 
+    << std::setw(11) << "result,"
+    << std::setw(11) << "n,"
+    << std::setw(19) << "items_per_second,"
+    << std::setw(13) << "malloc_time,"
+    << std::setw(17) << "randomize_time,"
+    << std::setw(13) << "sort_time,"
+    << std::endl;
+
+  std::cout 
+    << std::setw(10) << result << ","
+    << std::setw(10) << std::scientific << std::setprecision(2) << (double)array_size << ","
+    << std::setw(18) << std::fixed << std::setprecision(4) << ((double)array_size)/total_seconds << ","
+    << std::setw(12) << std::fixed << std::setprecision(4) << init_array_duration_seconds << ","
+    << std::setw(16) << std::fixed << std::setprecision(4) << randomize_array_duration_seconds << ","
+    << std::setw(12) << std::fixed << std::setprecision(4) << sort_duration_seconds << ","
+    << std::endl;
+
+  /*
+  printf("%s,%12s,%9.2e,%16.4f,%16.4f,%16.4f,%16.4f\n", 
+    result_str, strategy_str, (double)array_size, 
+    ((double)array_size)/total_seconds,
+    malloc_seconds, randomize_seconds, sort_seconds);
+    */
 
   return 0;
 }
