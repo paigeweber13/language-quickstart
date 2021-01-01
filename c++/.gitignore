@@ -1,6 +1,6 @@
 # executables
-dijkstra
-mergesort
+dijkstra/dijkstra
+mergesort/mergesort
 
 # core dumps
 core
