@@ -1,7 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-file_prefix = 'data/2021-01-01_1325'
+file_prefix = 'data/2021-01-01_1538'
 df = pd.read_csv(file_prefix + '.csv')
 df_sequential = df[df['strategy'] == 'sequential']
 df_parallel = df[df['strategy'] == 'parallel']

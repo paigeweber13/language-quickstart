@@ -8,7 +8,7 @@ outputs = []
 subprocess.run(['make', 'release'])
 strategies = ['s', 'p']
 
-while i < 1.1e10 + 1:
+while i < 1.1e9:
     for strategy in strategies:
         command = ['./mergesort', strategy, str(i)]
         print('INFO: Running command', ' '.join(command))
@@ -22,7 +22,7 @@ while i < 1.1e10 + 1:
 
     i*=10
 
-header = ' result,    strategy,        n,items_per_second,     malloc_time,  '
+header = ' result,    strategy,        n,items_per_second,     malloc_time,  '\
     'randomize_time,       sort_time'
 
 for i in range(len(outputs)):
