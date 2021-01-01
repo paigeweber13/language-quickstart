@@ -11,6 +11,7 @@ const ull MAX_ARRAY_SIZE_FOR_PRINTS = 21;
 const int CODE_WRONG_NUM_ARGUMENTS_ERROR = 1;
 const int CODE_UNABLE_TO_PARSE_ERROR = 2;
 const int CODE_INPUT_EXCEEDS_MAX_ERROR = 3;
+const int CODE_BAD_STRATEGY = 3;
 
 /* 
  * randomizes the array 'array'
@@ -129,16 +130,31 @@ void mergesort_parallel(float * array, float * buffer, ull n) {
 }
 
 int main(int argc, char **argv) {
-  if(argc < 2) {
-    fprintf(stderr, "ERROR: Must specify array length as first and only "
-      "parameter.\nUsage: %s n\n", argv[0]);
+  char usage [300]; 
+  sprintf(
+    usage,
+    "Usage: %s strategy n\n"
+    "       where strategy is one of s (for sequential) or p (for parallel)\n"
+    "       and n is the array length\n",
+    argv[0]
+  );
+
+  if(argc < 3) {
+    fprintf(stderr, "ERROR: Must specify array length and runtime "
+      "strategy.\n");
+    fprintf(stderr, "%s", usage);
     return CODE_WRONG_NUM_ARGUMENTS_ERROR;
+  }
+  else if ( strcmp(argv[1], "p") != 0 && strcmp(argv[1], "s") != 0 ) {
+    fprintf(stderr, "ERROR: runtime strategy must be one of \"p\" or \"s\"\n");
+    fprintf(stderr, "%s", usage);
+    return CODE_BAD_STRATEGY;
   }
 
   /* get command line arg */
   ull array_size;
 
-  array_size = strtoull(argv[1], NULL, 0);
+  array_size = strtoull(argv[2], NULL, 0);
   
   /* initialize array*/
   // TODO: make seed random once results are consistent
@@ -185,10 +201,15 @@ int main(int argc, char **argv) {
   /* ----- do mergesort ----- */
   clock_t sort_time_start = clock();
 
-  #pragma omp parallel 
-  {
-    #pragma omp single
-    mergesort_parallel(array, buffer, array_size);
+  if(strcmp(argv[1], "p") == 0) {
+    #pragma omp parallel 
+    {
+      #pragma omp single
+      mergesort_parallel(array, buffer, array_size);
+    }
+  }
+  else if(strcmp(argv[1], "s") == 0) {
+    mergesort(array, buffer, array_size);
   }
 
   clock_t sort_time_end = clock();
@@ -207,6 +228,14 @@ int main(int argc, char **argv) {
   if(array_size < MAX_ARRAY_SIZE_FOR_PRINTS) {
     printf("Array after sorting: ");
     print_array(array, array_size);
+  }
+
+  char strategy_str[11];
+  if(strcmp(argv[1], "s") == 0) {
+    strcpy(strategy_str, "sequential");
+  }
+  else if(strcmp(argv[1], "p") == 0) {
+    strcpy(strategy_str, "parallel");
   }
 
   /* calculate durations */
@@ -233,10 +262,11 @@ int main(int argc, char **argv) {
 
   // it is safe to remove spaces before processing
 
-  fprintf(stderr, " result,        n,items_per_second,     malloc_time,  "
+  fprintf(stderr, " result,    strategy,        n,items_per_second,     malloc_time,  "
     "randomize_time,       sort_time\n");
-  printf("%s,%9.2e,%16.4f,%16.4f,%16.4f,%16.4f\n", 
-    result_str, (double)array_size, ((double)array_size)/total_seconds,
+  printf("%s,%12s,%9.2e,%16.4f,%16.4f,%16.4f,%16.4f\n", 
+    result_str, strategy_str, (double)array_size, 
+    ((double)array_size)/total_seconds,
     malloc_seconds, randomize_seconds, sort_seconds);
 
 
