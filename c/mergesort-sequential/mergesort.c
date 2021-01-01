@@ -18,7 +18,7 @@ void randomize_array(float * array, ull n, unsigned seed) {
   srand(seed);
 
   for (ull i = 0; i < n; i++) {
-    array[i] = rand();
+    array[i] = rand() % 10;
   }
 }
 
@@ -52,51 +52,43 @@ char array_is_ordered(float * array, ull n) {
 /*
  * assumes a and b are contiguous in memory, with 'a' first
  */
-void merge(float * a, ull a_n, float * b, ull b_n) {
+void merge(float * a, ull a_n, float * b, ull b_n, float * buffer) {
   ull a_i = 0; // index of array a
   ull b_i = 0; // index of array b
 
-  // merging in place requires a lot of shifting, so is very memory-intensive in
-  // worst case.
-
-  // instead, let's just create another temporary array 'merged'
-
-  float * merged = (float*)malloc(sizeof(float) * (a_n+b_n));
-  ull merged_i = 0;
+  ull buffer_i = 0;
 
   while(a_i < a_n && b_i < b_n) {
     if(a[a_i] > b[b_i]) {
       // then b should come first
-      merged[merged_i] = b[b_i];
+      buffer[buffer_i] = b[b_i];
       b_i++;
     }
     else {
-      // else a is <= b so we put b next
-      merged[merged_i] = a[a_i];
+      // else a is <= b so we put a next
+      buffer[buffer_i] = a[a_i];
       a_i++;
     }
 
-    merged_i++;
+    buffer_i++;
   }
 
   // if either 'a' or 'b' has items left, copy them to 'merged'
   if(a_i < a_n) {
-    memcpy(merged + merged_i, a + a_i, sizeof(float) * (a_n - a_i));
+    memcpy(buffer + buffer_i, a + a_i, sizeof(float) * (a_n - a_i));
   }
   if(b_i < b_n) {
-    memcpy(merged + merged_i, b + b_i, sizeof(float) * (b_n - b_i));
+    memcpy(buffer + buffer_i, b + b_i, sizeof(float) * (b_n - b_i));
   }
 
-  // then move stuff from 'merged' back into original array
-  memcpy(a, merged, sizeof(float) * (a_n+b_n));
-
-  free(merged);
+  // then move stuff from 'buffer' back into original array
+  memcpy(a, buffer, sizeof(float) * (a_n+b_n));
 }
 
 /*
  * recursively merge-sorts an array in-place.
  */
-void mergesort(float * array, ull n) {
+void mergesort(float * array, float * buffer, ull n) {
   if(n == 1)
     return;
   
@@ -106,10 +98,10 @@ void mergesort(float * array, ull n) {
   ull right_n = n - n/2;
   float * right_array = array + left_n;
 
-  mergesort(left_array, left_n);
-  mergesort(right_array, right_n);
+  mergesort(left_array, buffer, left_n);
+  mergesort(right_array, buffer + left_n, right_n);
 
-  merge(left_array, left_n, right_array, right_n);
+  merge(left_array, left_n, right_array, right_n, buffer);
 }
 
 int main(int argc, char **argv) {
@@ -130,6 +122,7 @@ int main(int argc, char **argv) {
 
   clock_t malloc_time_start = clock();
   float * array = (float*)malloc(sizeof(float) * array_size);
+  float * buffer = (float*)malloc(sizeof(float) * array_size);
   clock_t malloc_time_end = clock();
 
   clock_t randomize_time_start = clock();
@@ -167,16 +160,15 @@ int main(int argc, char **argv) {
 
 
   /* ----- do mergesort ----- */
-  // float * sorted = new float[array_size];
   clock_t sort_time_start = clock();
-  mergesort(array, array_size);
+  mergesort(array, buffer, array_size);
   clock_t sort_time_end = clock();
 
 
   /* ----- results ----- */
   /* check for successful sort! */
   char result_str[8];
-  if(array_is_ordered(array, array_size)) {
+  if(array_is_ordered(buffer, array_size)) {
     strcpy(result_str, "success");
   }
   else {
@@ -220,6 +212,7 @@ int main(int argc, char **argv) {
 
   /* clean up */
   free(array);
+  free(buffer);
 
   return 0;
 }
