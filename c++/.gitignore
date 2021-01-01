@@ -2,6 +2,9 @@
 dijkstra/dijkstra
 mergesort/mergesort
 
+# data like csvs and images
+data
+
 # core dumps
 core
 

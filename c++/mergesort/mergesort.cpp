@@ -243,18 +243,11 @@ int main(int argc, char **argv) {
   std::cout 
     << std::setw(10) << result << ","
     << std::setw(10) << std::scientific << std::setprecision(2) << (double)array_size << ","
-    << std::setw(18) << std::fixed << std::setprecision(4) << ((double)array_size)/total_seconds << ","
+    << std::setw(18) << std::scientific << std::setprecision(4) << ((double)array_size)/total_seconds << ","
     << std::setw(12) << std::fixed << std::setprecision(4) << init_array_duration_seconds << ","
     << std::setw(16) << std::fixed << std::setprecision(4) << randomize_array_duration_seconds << ","
-    << std::setw(12) << std::fixed << std::setprecision(4) << sort_duration_seconds << ","
+    << std::setw(12) << std::fixed << std::setprecision(4) << sort_duration_seconds
     << std::endl;
-
-  /*
-  printf("%s,%12s,%9.2e,%16.4f,%16.4f,%16.4f,%16.4f\n", 
-    result_str, strategy_str, (double)array_size, 
-    ((double)array_size)/total_seconds,
-    malloc_seconds, randomize_seconds, sort_seconds);
-    */
 
   return 0;
 }
