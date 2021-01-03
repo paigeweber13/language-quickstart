@@ -10,10 +10,13 @@ features, so I re-learned how to be an applications programmer :)
 Without `addr`, mergesort is *slow* compared to C. The first time I ran it, I
 forgot to use the `-d:release` flag to produce faster code, and it ran about
 30x slower than mergesort in C. However, after enabling the release flag,
-performance improved to about 6.5x slower than C. For an array of size 1e08, C
+performance improved to about 6.5x slower than C. For an array of size 1e8, C
 processed 1.58e7 items per second and took 5.62 seconds to sort the array. Nim
 processed 2.72e6 items per second and took 36.0633 seconds to sort the array.
 Allocation + randomization took about .7 seconds in both languages.
+
+This performance is about half that of high-level C++, which processed 7.25e6
+items per second and took 13.35 seconds to sort an array of size 1e8
 
 However, for a proper comparison I would need to write an implementation that
 uses `addr`, which is outside the scope of this project. I'm sure Nim is
