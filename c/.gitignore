@@ -1,9 +1,6 @@
 # executables
 mergesort/mergesort
 
-# data like csv files and plots
-data
-
 # core dumps
 core
 
