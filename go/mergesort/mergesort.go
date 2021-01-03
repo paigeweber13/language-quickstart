@@ -1,8 +1,11 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"math/rand"
+	"strconv"
+	"time"
 )
 
 func randomizeArray(array []float32) []float32 {
@@ -70,19 +73,94 @@ func mergesort(array []float32) []float32 {
 	return merge(left, right)
 }
 
+const (
+	singleMergesort   = "single"
+	multipleSpeedtest = "speedtest"
+)
+
+type cliArgs struct {
+	n    uint64
+	goal string
+}
+
+func parseCommandLineArgs() cliArgs {
+
+	var defaultN uint64 = 1000
+	defaultGoal := singleMergesort
+
+	nFlag := flag.Uint64("n", defaultN, "The size of the array to randomize and "+
+		"sort. Defaults to "+strconv.FormatUint(defaultN, 10))
+	goalFlag := flag.String("goal", singleMergesort, "Whether you want to do "+
+		"a single mergesort or run multiple and speedtest them. Options are '"+
+		singleMergesort+"' and '"+multipleSpeedtest+"'. Default is '"+
+		defaultGoal+"'.")
+
+	flag.Parse()
+
+	return cliArgs{
+		n:    *nFlag,
+		goal: *goalFlag,
+	}
+}
+
 func main() {
-	n := 10
+	args := parseCommandLineArgs()
 
-	array := make([]float32, n)
-	array = randomizeArray(array)
+	if args.goal == singleMergesort {
+		array := make([]float32, args.n)
+		array = randomizeArray(array)
 
-	fmt.Println("Array before sorting:", array)
-	array = mergesort(array)
-	fmt.Println("Array after sorting:", array)
+		const ARRAY_PRINT_THRESHOLD = 21
+		if args.n < ARRAY_PRINT_THRESHOLD {
+			fmt.Println("Array before sorting:", array)
+		}
 
-	if isArrayInAscendingOrder(array) {
-		fmt.Println("SUCCESS: Array is sorted!")
+		array = mergesort(array)
+
+		if args.n < ARRAY_PRINT_THRESHOLD {
+			fmt.Println("Array after sorting:", array)
+		}
+
+		if isArrayInAscendingOrder(array) {
+			fmt.Println("SUCCESS: Array is sorted!")
+		} else {
+			fmt.Println("FAILURE: Array is NOT sorted!")
+		}
+	} else if args.goal == multipleSpeedtest {
+		fmt.Printf("%7v,%9v,%17v,%15v,%19v,%14v\n", "result", "n",
+			"items_per_second", "alloc_duration", "randomize_duration",
+			"sort_duration")
+
+		var i uint64
+		for i = 1; i < args.n+1; i *= 10 {
+			startAlloc := time.Now()
+			array := make([]float32, i)
+			durationAlloc := time.Now().Sub(startAlloc)
+
+			startRandomize := time.Now()
+			array = randomizeArray(array)
+			durationRandomize := time.Now().Sub(startRandomize)
+
+			startSort := time.Now()
+			array = mergesort(array)
+			durationSort := time.Now().Sub(startSort)
+
+			durationTotal := durationAlloc + durationRandomize + durationSort
+
+			var resultStr string
+			if isArrayInAscendingOrder(array) {
+				resultStr = "success"
+			} else {
+				resultStr = "failure"
+			}
+
+			fmt.Printf("%7s,%9.2e,%17.2e,%15.4f,%19.4f,%14.4f\n",
+				resultStr, float32(i), float64(i)/durationTotal.Seconds(),
+				durationAlloc.Seconds(), durationRandomize.Seconds(),
+				durationSort.Seconds())
+		}
 	} else {
-		fmt.Println("FAILURE: Array is NOT sorted!")
+		fmt.Println("ERROR: Unrecognized goal")
+		flag.Usage()
 	}
 }
