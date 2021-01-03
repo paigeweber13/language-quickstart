@@ -159,7 +159,7 @@ proc main() =
       else:
         resultString = "failure"
 
-      echo fmt"{resultString},{float(i):9.2e},{totalTime/float(i):17.2e}," &
+      echo fmt"{resultString},{float(i):9.2e},{float(i)/totalTime:17.2e}," &
         fmt"{durationAllocAndRandomize:15.4f},{durationMergeSort:14.4f}"
 
       i *= 10
