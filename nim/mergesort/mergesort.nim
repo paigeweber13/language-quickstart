@@ -1,4 +1,9 @@
+import os
+import parseopt
+import parseutils
 import random
+import strformat
+import times
 
 # -------- utilities -------- #
 proc newRandomArray(len: Natural): seq[float] = 
@@ -72,19 +77,92 @@ proc mergeSort(arr: seq[float]): seq[float] =
   return mergeSort(arr, len(arr))
 
 
+# -------- cli -------- #
+type
+  ThingToDo = enum
+    singleExecution, speedtestMultiple
+
+
 # -------- main -------- #
 proc main() =
-  var arr: seq[float] = @[0.0, 1.0, 2.0, 3.0]
-  echo arr
-  echo "is arr sorted? ", isSorted(arr)
+  var goal: ThingToDo = singleExecution
+  var n: Natural
+  var missingN = true
 
-  arr = newRandomArray(10)
-  echo arr
-  echo "is arr sorted? ", isSorted(arr)
+  var usage = "Usage: " & getAppFilename() & " [-s] n\n" &
+    "  -s,speedtest: if included, will speedtest all arrays between size \n" &
+    "                1 and n. If omitted, will only run run mergesort for \n" &
+    "                size n, with more verbose output.\n"
+  var p = initOptParser(commandLineParams())    
 
-  arr = mergesort(arr)
-  echo arr
-  echo "is arr sorted? ", isSorted(arr)
+  # 'case' must cover all cases, so we may as well do 'while true:'
+  while true:
+    p.next()
+    case p.kind
+    of cmdEnd: break
+    of cmdShortOption, cmdLongOption:
+      if p.key == "s" or p.key == "speedtest":
+        goal = speedtestMultiple
+    of cmdArgument:
+      discard parseSaturatedNatural(p.key, n)
+      missingN = false
+
+  if missingN:
+    echo "Error! must supply 'n'"
+    echo usage
+    return
+
+  case goal
+
+  of singleExecution:      
+    const ARRAY_PRINT_THRESHOLD = 21
+
+    echo fmt"Allocating and randomizing array of length {n}..."
+    var arr = newRandomArray(n)
+    echo "Done!"
+
+    if len(arr) < ARRAY_PRINT_THRESHOLD:
+      echo "Array is: ", arr
+      
+    echo "Sorting array..."
+    arr = mergeSort(arr)
+    echo "Done!"
+
+    if len(arr) < ARRAY_PRINT_THRESHOLD:
+      echo "Array is: ", arr
+
+    if isSorted(arr):
+      echo "SUCCESS: array is sorted"
+    else:
+      echo "FAILURE: array is *not* sorted"
+
+  of speedtestMultiple:
+    var i = 1
+    var arr: seq[float]
+    var resultString: string
+
+    echo fmt"""{"result":>7},{"n":>9},{"items_per_second":>17},""" &
+      fmt"""{"alloc_duration":>15},{"sort_duration":>14}"""
+    while i < n+1:
+      let startAllocAndRandomize = cpuTime()
+      arr = newRandomArray(i)
+      let durationAllocAndRandomize = cpuTime() - startAllocAndRandomize
+
+      let startMergeSort = cpuTime()
+      arr = mergeSort(arr)
+      let durationMergeSort = cpuTime() - startMergeSort
+
+      let totalTime = durationAllocAndRandomize + durationMergeSort
+
+      if isSorted(arr):
+        resultString = "success"
+      else:
+        resultString = "failure"
+
+      echo fmt"{resultString},{float(i):9.2e},{totalTime/float(i):17.2e}," &
+        fmt"{durationAllocAndRandomize:15.4f},{durationMergeSort:14.4f}"
+
+      i *= 10
 
 
 main()
