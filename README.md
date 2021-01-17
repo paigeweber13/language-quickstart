@@ -36,3 +36,37 @@ These could be added in the future
 - Sieve of Eratosthenes
 - More sorting algorithms
 - Binary Search Tree
+
+# What am I looking for?
+I use C/C++ for work. While I really love these languages, they leave a lot to
+be desired, and I would not like to use them for a fun, casual, personal 
+project.
+
+## My ideal language
+- has a strong package management and build system
+  - Rust's cargo, Haskell's stack are good examples
+  - Python and C++ are anti-examples.
+    - Python makes it super difficult to create your own packages and make
+      other programs aware of them
+    - C++ has deeply coupled language package management and OS package
+      management. Also, make/cmake basically require you to learn a second
+      language just to build your C/C++ code.
+- has few(er) runtime errors
+  - compiled languages with static analysis are greatly preferred
+  - I want to avoid how with python/javascript your code will work the first
+    time, but then down the line you have to scratch your head for hours while
+    you track down a runtime error
+- is appropriate for large projects
+  - maintainabiliy is huge: how easily can I parse an existing codebase to
+    debug or add features?
+  - robustness is important: rust's nanny of a compiler shines here
+  - strong object-oriented principles are a plus, but not necessary
+- it should be somewhat easy to pick up
+  - This is a language I'll be using for fun. I don't want to have to spend
+    huge amounts of time just getting things up and running
+  - Haskell, rust are anti-examples
+    - Haskell is obtuse, pedantic, and deeply integrated in theory
+    - Rust has its own set of rules that are not intuitive, even to someone who
+      is well-versed in computer architecture.
+- it should be enjoyable
+  - I'm just here to have fun
